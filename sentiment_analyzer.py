@@ -1,18 +1,19 @@
 import re
 from collections import Counter
 
+
 class SentimentAnalyzer:
     def __init__(self):
-        self.positive = {'good','great','excellent','amazing','wonderful','fantastic','love',
-                         'happy','joy','perfect','beautiful','awesome','best','brilliant',
-                         'superb','outstanding','delightful','pleasant','enjoyable','fabulous'}
-        self.negative = {'bad','terrible','awful','horrible','poor','worst','hate','sad',
-                         'disappointing','unpleasant','disgusting','pathetic','useless',
-                         'annoying','frustrating','boring','dreadful','inferior','nasty'}
-        self.stop = {'the','a','an','and','or','but','in','on','at','to','for','of','with',
-                     'is','was','are','been','be','have','has','had','do','does','did','will',
-                     'would','could','should','may','might','i','you','he','she','it','we',
-                     'they','this','that','these'}
+        self.positive = {'good', 'great', 'excellent', 'amazing', 'wonderful', 'fantastic', 'love',
+                         'happy', 'joy', 'perfect', 'beautiful', 'awesome', 'best', 'brilliant',
+                         'superb', 'outstanding', 'delightful', 'pleasant', 'enjoyable', 'fabulous'}
+        self.negative = {'bad', 'terrible', 'awful', 'horrible', 'poor', 'worst', 'hate', 'sad',
+                         'disappointing', 'unpleasant', 'disgusting', 'pathetic', 'useless',
+                         'annoying', 'frustrating', 'boring', 'dreadful', 'inferior', 'nasty'}
+        self.stop = {'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with',
+                     'is', 'was', 'are', 'been', 'be', 'have', 'has', 'had', 'do', 'does', 'did', 'will',
+                     'would', 'could', 'should', 'may', 'might', 'i', 'you', 'he', 'she', 'it', 'we',
+                     'they', 'this', 'that', 'these'}
 
     def clean_text(self, text):
         text = text.lower()
@@ -62,14 +63,16 @@ class SentimentAnalyzer:
                 lines.append("  ".join(line))
                 line, llen = [w], wlen
             else:
-                line.append(w); llen += wlen
+                line.append(w);
+                llen += wlen
         if line:
             lines.append("  ".join(line))
         return "\n".join(lines)
 
+
 def main():
     analyzer = SentimentAnalyzer()
-    print("TEXT SENTIMENT ANALYZER\n" + "="*24)
+    print("TEXT SENTIMENT ANALYZER\n" + "=" * 24)
     print("Enter text (finish with an empty line):")
     lines = []
     while True:
@@ -87,12 +90,12 @@ def main():
     sentiment, score, pos, neg = analyzer.analyze_sentiment(text)
     print(f"\nOverall: {sentiment.upper()}  |  Score: {score:.2f}%  |  +:{pos}  -:{neg}\n")
     wf = analyzer.get_word_frequency(text)
-    print("WORD CLOUD\n" + "-"*10)
+    print("WORD CLOUD\n" + "-" * 10)
     print(analyzer.generate_ascii_cloud(wf))
     print("\nTOP WORDS")
     for w, f in wf[:10]:
-        print(f"{w:12} | {'█'*f} ({f})")
+        print(f"{w:12} | {'█' * f} ({f})")
+
 
 if __name__ == "__main__":
     main()
-
