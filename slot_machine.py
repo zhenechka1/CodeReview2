@@ -2,7 +2,6 @@ import random
 import time
 import sys
 
-
 # Символи и множители при 3 еднакви
 symbols = {
     "🍒": 2,
@@ -21,9 +20,10 @@ bet = 1  # минимален залог
 game_history = []
 
 # Скрит/случаен бонус настройки
-hidden_bonus_trigger = 1000        # праговата загуба при която може да се активира бонус
-hidden_bonus_percentage = 0.10     # 10% от загубите
-hidden_bonus_chance = 1         # 100% шанс да се активира (може да се промени)
+hidden_bonus_trigger = 1000  # праговата загуба при която може да се активира бонус
+hidden_bonus_percentage = 0.10  # 10% от загубите
+hidden_bonus_chance = 1  # 100% шанс да се активира (може да се промени)
+
 
 def print_welcome():
     print("=" * 50)
@@ -34,6 +34,7 @@ def print_welcome():
     print(" - 3 еднакви символа = голяма печалба 🎉")
     print(" - 2 еднакви символа отляво = двойна печалба ✨")
     print("=" * 50)
+
 
 def deposit_money():
     global balance
@@ -49,6 +50,7 @@ def deposit_money():
         except ValueError:
             print("❌ Невалидно число, опитай отново.")
 
+
 def show_menu():
     print("\n--- ГЛАВНО МЕНЮ ---")
     print("1. Завърти ротативката 🎰")
@@ -56,6 +58,7 @@ def show_menu():
     print("3. Покажи баланса 💰")
     print("4. История на играта 📝")
     print("5. Изход 🚪")
+
 
 def apply_hidden_bonus():
     """
@@ -76,6 +79,7 @@ def apply_hidden_bonus():
                 total_lost = 0  # нулираме натрупаните загуби след даване на бонус
                 return True, bonus
     return False, 0
+
 
 def spin_slot():
     global balance, total_lost, bet
@@ -131,6 +135,7 @@ def spin_slot():
 
     print(f"\n💰 Текущ баланс: {balance} лв")
 
+
 def change_bet():
     global bet
     while True:
@@ -145,8 +150,10 @@ def change_bet():
         except ValueError:
             print("❌ Невалидно число, опитай отново.")
 
+
 def show_balance():
     print(f"💰 Текущ баланс: {balance} лв")
+
 
 def show_history():
     if not game_history:
@@ -157,10 +164,12 @@ def show_history():
             print(entry)
         print("-------------------------")
 
+
 def exit_game():
     print("\n🎲 Благодарим ти, че игра нашата ротативка!")
     print(f"🏁 Финален баланс: {balance} лв")
     sys.exit()
+
 
 # --- ГЛАВНА ПРОГРАМА ---
 print_welcome()
