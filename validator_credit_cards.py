@@ -1,65 +1,68 @@
 class CreditCard:
-    def __init__(self, card_no):
-        self.card_no = card_no
+    """Class for validating and analyzing credit card numbers."""
+
+    def __init__(self, card_number: str):
+        self.card_number = card_number.strip()
 
     @property
-    def company(self):
-        comp = None
-        if str(self.card_no).startswith("4"):
-            comp = "Visa Card"
-        elif str(self.card_no).startswith("5"):
-            comp = "Master Card"
-        elif str(self.card_no).startswith("37"):
-            comp = "American Express Card"
-
-        return "Company card name: " + comp
-
-    def first_check(self):
-        if 13 <= len(self.card_no) <= 19:
-            message = "First check : Valid in terms of length."
-
+    def company(self) -> str:
+        """Return the card company based on number prefix."""
+        if self.card_number.startswith("4"):
+            company = "Visa"
+        elif self.card_number.startswith("5"):
+            company = "MasterCard"
+        elif self.card_number.startswith("37"):
+            company = "American Express"
         else:
-            message = "First check : Check Card number once again it must be of 13 or 16 digits long."
-        return message
+            company = "Unknown"
 
-    def validate_card_information(self):
-        # double every second digit from right to left
-        sum_ = 0
-        crd_no = self.card_no[::-1]
-        for i in range(len(crd_no)):
+        return f"Company card name: {company}"
+
+    def is_valid_length(self) -> bool:
+        """Check if card number length is valid."""
+        return 13 <= len(self.card_number) <= 19
+
+    @property
+    def checksum(self) -> str:
+        """Return the last digit of the card (checksum)."""
+        return f"CHECKSUM: {self.card_number[-1]}"
+
+    def validate(self) -> bool:
+        """Validate card using Luhn algorithm."""
+        digits = [int(d) for d in self.card_number[::-1]]
+        total = 0
+
+        for i, digit in enumerate(digits):
             if i % 2 == 1:
-                double_it = int(crd_no[i]) * 2
-
-                if len(str(double_it)) == 2:
-                    sum_ += sum([eval(i) for i in str(double_it)])
-
-                else:
-                    sum_ += double_it
-
+                doubled = digit * 2
+                total += doubled if doubled < 10 else sum(int(d) for d in str(doubled))
             else:
-                sum_ += int(crd_no[i])
+                total += digit
 
-        if sum_ % 10 == 0:
-            response = "Valid Card"
-        else:
-            response = "Invalid Card"
-
-        return response
-
-    @property
-    def checksum(self):
-        return "CHECKSUM : " + self.card_no[-1]
+        return total % 10 == 0
 
     @classmethod
-    def set_card(cls, card_to_check):
-        return cls(card_to_check)
+    def from_input(cls):
+        """Create card from user input."""
+        number = input("Enter a card number: ")
+        return cls(number)
 
 
-card_number = input('Enter a card number: ')
-card = CreditCard.set_card(card_number)
-print(card.company)
-print("Card : ", card.card_no)
-print(card.first_check())
-print(card.checksum)
-print(card.validate_card_information())
+def main():
+    card = CreditCard.from_input()
 
+    print(card.company)
+    print(f"Card: {card.card_number}")
+
+    if card.is_valid_length():
+        print("Length check: VALID")
+    else:
+        print("Length check: INVALID")
+
+    print(card.checksum)
+
+    print("Validation:", "Valid Card" if card.validate() else "Invalid Card")
+
+
+if __name__ == "__main__":
+    main()
