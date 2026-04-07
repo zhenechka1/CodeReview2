@@ -3,98 +3,126 @@ from collections import Counter
 
 
 class SentimentAnalyzer:
+    """Simple sentiment analyzer based on word lists."""
+
     def __init__(self):
-        self.positive = {'good', 'great', 'excellent', 'amazing', 'wonderful', 'fantastic', 'love',
-                         'happy', 'joy', 'perfect', 'beautiful', 'awesome', 'best', 'brilliant',
-                         'superb', 'outstanding', 'delightful', 'pleasant', 'enjoyable', 'fabulous'}
-        self.negative = {'bad', 'terrible', 'awful', 'horrible', 'poor', 'worst', 'hate', 'sad',
-                         'disappointing', 'unpleasant', 'disgusting', 'pathetic', 'useless',
-                         'annoying', 'frustrating', 'boring', 'dreadful', 'inferior', 'nasty'}
-        self.stop = {'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with',
-                     'is', 'was', 'are', 'been', 'be', 'have', 'has', 'had', 'do', 'does', 'did', 'will',
-                     'would', 'could', 'should', 'may', 'might', 'i', 'you', 'he', 'she', 'it', 'we',
-                     'they', 'this', 'that', 'these'}
+        self.positive_words = {
+            'good', 'great', 'excellent', 'amazing', 'wonderful', 'fantastic',
+            'love', 'happy', 'joy', 'perfect', 'beautiful', 'awesome',
+            'best', 'brilliant', 'superb', 'outstanding'
+        }
 
-    def clean_text(self, text):
+        self.negative_words = {
+            'bad', 'terrible', 'awful', 'horrible', 'poor', 'worst',
+            'hate', 'sad', 'disappointing', 'disgusting', 'annoying',
+            'frustrating', 'boring', 'dreadful'
+        }
+
+        self.stop_words = {
+            'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to',
+            'for', 'of', 'with', 'is', 'was', 'are', 'be'
+        }
+
+    def clean_text(self, text: str) -> list[str]:
+        """Clean and tokenize text."""
         text = text.lower()
-        text = re.sub(r'[^\w\s]', '', text)
-        words = text.split()
-        return [w for w in words if w and len(w) > 2]
+        text = re.sub(r"[^\w\s]", "", text)
+        return [word for word in text.split() if len(word) > 2]
 
-    def analyze_sentiment(self, text):
+    def analyze(self, text: str) -> tuple[str, float, int, int]:
+        """Analyze sentiment of text."""
         words = self.clean_text(text)
-        poscount = sum(1 for w in words if w in self.positive)
-        negcount = sum(1 for w in words if w in self.negative)
+
+        pos_count = sum(word in self.positive_words for word in words)
+        neg_count = sum(word in self.negative_words for word in words)
+
         total = len(words)
         if total == 0:
-            return "neutral", 0.0, poscount, negcount
-        score = (poscount - negcount) / total * 100
+            return "neutral", 0.0, pos_count, neg_count
+
+        score = (pos_count - neg_count) / total * 100
+
         if score > 5:
             sentiment = "positive"
         elif score < -5:
             sentiment = "negative"
         else:
             sentiment = "neutral"
-        return sentiment, score, poscount, negcount
 
-    def get_word_frequency(self, text, top_n=15):
+        return sentiment, score, pos_count, neg_count
+
+    def word_frequency(self, text: str, top_n: int = 10):
+        """Return most common words excluding stop words."""
         words = self.clean_text(text)
-        filtered = [w for w in words if w not in self.stop]
+        filtered = [w for w in words if w not in self.stop_words]
         return Counter(filtered).most_common(top_n)
 
-    def generate_ascii_cloud(self, word_freq, width=60):
+    def generate_ascii_cloud(self, word_freq, width: int = 60) -> str:
+        """Generate simple ASCII word cloud."""
         if not word_freq:
             return "No words to display"
-        maxf = word_freq[0][1]
-        cloud = []
-        for w, f in word_freq:
-            size = int((f / maxf) * 3) + 1
+
+        max_freq = word_freq[0][1]
+        cloud_words = []
+
+        for word, freq in word_freq:
+            size = int((freq / max_freq) * 3) + 1
             if size == 1:
-                disp = w
+                display = word
             elif size == 2:
-                disp = w.upper()
+                display = word.upper()
             else:
-                disp = f"**{w.upper()}**"
-            cloud.append(disp)
-        lines, line, llen = [], [], 0
-        for w in cloud:
-            wlen = len(w) + 2
-            if llen + wlen > width:
-                lines.append("  ".join(line))
-                line, llen = [w], wlen
+                display = f"**{word.upper()}**"
+            cloud_words.append(display)
+
+        lines, current_line, length = [], [], 0
+
+        for word in cloud_words:
+            word_len = len(word) + 2
+            if length + word_len > width:
+                lines.append("  ".join(current_line))
+                current_line, length = [word], word_len
             else:
-                line.append(w);
-                llen += wlen
-        if line:
-            lines.append("  ".join(line))
+                current_line.append(word)
+                length += word_len
+
+        if current_line:
+            lines.append("  ".join(current_line))
+
         return "\n".join(lines)
 
 
 def main():
     analyzer = SentimentAnalyzer()
-    print("TEXT SENTIMENT ANALYZER\n" + "=" * 24)
-    print("Enter text (finish with an empty line):")
+
+    print("Enter text (empty line to finish):")
     lines = []
+
     while True:
-        try:
-            line = input()
-        except EOFError:
-            break
-        if line == "":
+        line = input()
+        if not line:
             break
         lines.append(line)
+
     text = "\n".join(lines).strip()
+
     if not text:
-        print("No text entered. Exiting.")
+        print("No text entered.")
         return
-    sentiment, score, pos, neg = analyzer.analyze_sentiment(text)
-    print(f"\nOverall: {sentiment.upper()}  |  Score: {score:.2f}%  |  +:{pos}  -:{neg}\n")
-    wf = analyzer.get_word_frequency(text)
-    print("WORD CLOUD\n" + "-" * 10)
-    print(analyzer.generate_ascii_cloud(wf))
-    print("\nTOP WORDS")
-    for w, f in wf[:10]:
-        print(f"{w:12} | {'█' * f} ({f})")
+
+    sentiment, score, pos, neg = analyzer.analyze(text)
+
+    print(f"\nSentiment: {sentiment.upper()}")
+    print(f"Score: {score:.2f}% | +{pos} | -{neg}")
+
+    freq = analyzer.word_frequency(text)
+
+    print("\nWord Cloud:")
+    print(analyzer.generate_ascii_cloud(freq))
+
+    print("\nTop Words:")
+    for word, count in freq:
+        print(f"{word:10} | {'█' * count} ({count})")
 
 
 if __name__ == "__main__":
